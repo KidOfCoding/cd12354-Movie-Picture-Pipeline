@@ -1,0 +1,78 @@
+name: Frontend Continuous Integration
+
+on:
+  pull_request:
+    paths:
+      - 'frontend/**'
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Cache Node Modules
+        uses: actions/cache@v4
+        with:
+          path: starter/frontend/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install Dependencies
+        run: |
+          cd starter/frontend
+          npm ci
+      - name: Run Linter
+        run: |
+          cd starter/frontend
+          npm run lint
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Cache Node Modules
+        uses: actions/cache@v4
+        with:
+          path: starter/frontend/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Install Dependencies
+        run: |
+          cd starter/frontend
+          npm ci
+      - name: Run Tests
+        run: |
+          cd starter/frontend
+          CI=true npm test
+
+  build:
+    needs: [lint, test]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Cache Node Modules
+        uses: actions/cache@v4
+        with:
+          path: starter/frontend/node_modules
+          key: ${{ runner.os }}-node-${{ hashFiles('starter/frontend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+      - name: Build Docker Image
+        env:
+          REACT_APP_MOVIE_API_URL: ${{ secrets.REACT_APP_MOVIE_API_URL }}
+        run: |
+          cd starter/frontend
+          docker build --build-arg REACT_APP_MOVIE_API_URL=$REACT_APP_MOVIE_API_URL --tag mp-frontend:latest .
