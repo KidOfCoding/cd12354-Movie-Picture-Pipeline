@@ -35,6 +35,7 @@ resource "aws_route_table" "public" {
     cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.igw.id
   }
+In Linux, use Ctrl+Shift+C to copy and Ctrl+Shift+V to paste in the terminal, while Ctrl+C and Ctrl+V work in graphical applications.
 
   tags = {
     Name = "public"
@@ -230,7 +231,6 @@ resource "aws_iam_role_policy_attachment" "node_group_policy" {
   role       = aws_iam_role.node_group.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
 }
-
 resource "aws_iam_role_policy_attachment" "cni_policy" {
   role       = aws_iam_role.node_group.name
   policy_arn = "arn:aws:iam::aws:policy/AmazonEKS_CNI_Policy"
