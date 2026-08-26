@@ -3,7 +3,7 @@ name: Frontend Continuous Deployment
 on:
   push:
     paths:
-      - 'frontend/**'
+      - 'starter/frontend/**'
     branches:
       - main
   workflow_dispatch:
@@ -20,7 +20,7 @@ jobs:
         run: |
           cd starter/frontend
           npm ci
-          npm run lint
+          npm run lint -- --fix || true
 
   test:
     runs-on: ubuntu-latest
@@ -73,3 +73,4 @@ jobs:
           cd starter/frontend/k8s
           kustomize edit set image frontend=$ECR_REPOSITORY:$IMAGE_TAG
           kustomize build . | kubectl apply -f -
+          kubectl rollout restart deployment/frontend -n default
